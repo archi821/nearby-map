@@ -35,36 +35,32 @@
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script>
-    // 自動切換返回主頁連結
-    const isLocal = location.hostname === "localhost" || location.hostname.startsWith("192.168");
-    const backLink = isLocal ? "/main_ui" : "main_ui.html";
+    // 讀取座標參數
+    const params = new URLSearchParams(location.search);
+    const lat = parseFloat(params.get("lat")) || 49.225;
+    const lng = parseFloat(params.get("lng")) || -122.999;
+
+    // 建立地圖
+    const map = L.map("map").setView([lat, lng], 17);
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      attribution: "© OpenStreetMap",
+    }).addTo(map);
+    L.circle([lat, lng], {
+      radius: 20,
+      color: "red",
+      fillColor: "red",
+      fillOpacity: 0.8,
+    }).addTo(map);
+
+    // 返回邏輯：iframe → 回上一頁；獨立頁 → 回 main_ui.html
+    const isEmbedded = window.self !== window.top;
+    const backLink = isEmbedded ? "javascript:history.back()" : "main_ui.html";
     document.getElementById("back-home").setAttribute("href", backLink);
-
-    // Leaflet 地圖定位
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        const { latitude, longitude } = pos.coords;
-        const map = L.map("map").setView([latitude, longitude], 17);
-
-        L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-          attribution: "© OpenStreetMap",
-        }).addTo(map);
-
-        L.circle([latitude, longitude], {
-          radius: 20,
-          color: "red",
-          fillColor: "red",
-          fillOpacity: 0.8,
-        }).addTo(map);
-      },
-      () => {
-        alert("❌ 無法取得定位，請確認瀏覽器權限");
-      },
-      { enableHighAccuracy: true }
-    );
   </script>
 </body>
 </html>
+
+
 
 
 
